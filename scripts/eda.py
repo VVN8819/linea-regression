@@ -1,0 +1,24 @@
+import pandas as pd
+import numpy as np
+
+# ======================== Исследовательский анализ EDA ============================
+def basic_info(df: pd.DataFrame) -> None:
+    df.info(memory_usage='deep')
+    print(f'\nПервые 10 строк: \n{df.head(10)}')
+
+# выявим пропущенные значения с помощью .isnull() и посчитаем их количество через mean()
+def missing_values_rep(df: pd.DataFrame) -> None:
+    print(df.isnull().mean())
+
+# ======================= Описательная статистика ==================================
+# Выводит описательную статистику только для числовых колонок.
+# Числа округлены до 2 знаков
+def descrip_stat(df: pd.DataFrame) -> None:
+    num_cols = df.select_dtypes(include=[np.number]).columns
+    print(df[num_cols].describe().T.round(2))
+
+def run_eda(df: pd.DataFrame) -> None:
+    basic_info(df)
+    missing_values_rep(df)
+    descrip_stat(df)
+    
