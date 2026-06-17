@@ -8,8 +8,6 @@ def main():
     # сырые данные
     df = read_csv_data()
     
-    #print(df.head(10))
-    
     run_eda(df)
     
 if __name__ == "__main__":
