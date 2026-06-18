@@ -1,5 +1,23 @@
 # linea-regression
 
+# Структура:
+LINEA-REGRESSION/
+    scripts/
+        data/
+            raw_data.csv
+        __init__.py
+        correlations.py
+        data_loader.py
+        eda.py
+        visualization.py
+    reports/
+        salary_distribution.png
+        experience_vs_salary.png
+    .gitignore
+    LICENSE
+    README.md
+    requirements.txt
+    run_pipeline.py
 
 Задание 1.1: Загрузите данные
 1. Сколько наблюдений (разработчиков) в датасете?
