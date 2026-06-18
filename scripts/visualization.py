@@ -62,6 +62,43 @@ def plot_experience_vs_salary(df: pd.DataFrame, save_path: str = None) -> None:
     
     plt.show()
 
+def find_outliers_iqr(df: pd.DataFrame, col: str) -> int:
+    
+    print(f'\nАнализ выбросов в колонке: {col}')
+    
+    data = df[col]
+    
+    # ========================== Ищем выбросы (метод IQR) ========================
+    Q1 = data.quantile(0.25)  # Нижний квартиль
+    Q3 = data.quantile(0.75)  # Верхний квартиль
+    IQR = Q3 - Q1  # межквартильный размах
+    lower_bound = Q1 - 3 * IQR
+    upper_bound = Q3 + 3 * IQR
+    
+    outliers = data[(data < lower_bound) | (data > upper_bound)]
+    outlier_pct = len(outliers) / len(data) * 100
+
+    print(f'\nВыбросы в {col}:')
+    print(f'Нижний квартиль: {Q1:.2f}')
+    print(f'Верхний квартиль: {Q3:.2f}')
+    print(f'Межквартильный размах: {IQR:.2f}')
+    print(f'Верхние и нижние границы исключения выбросов: [{lower_bound:,.0f}; {upper_bound:,.0f}]')
+    print(f'Выбросов: {len(outliers)} шт. ({outlier_pct:.1f}%)')
+
+    if len(outliers) > 0 and len(outliers) <= 5:
+        print(f'Значения: {outliers.tolist()}')
+    elif len(outliers) > 5:
+        print(f'Примеры: {outliers.head(3).tolist()} ...')
+        
+    # Дополнительная информация о выбросах
+    if len(outliers) > 0:
+        print(f'\nДетали выбросов:')
+        outlier_details = df.loc[outliers.index]
+        print(outlier_details[['опыт_лет', 'возраст', 'город', 'язык_программирования', 'зарплата']].to_string())
+
+    return len(outliers)
+
+
 def run_visualizations(df: pd.DataFrame, reports_dir: str = 'scripts/reports') -> None:
     
     # Формируем пути для сохранения
@@ -70,6 +107,9 @@ def run_visualizations(df: pd.DataFrame, reports_dir: str = 'scripts/reports') -
     
     # Создаём папку reports, если её нет
     Path(reports_dir).mkdir(parents=True, exist_ok=True)
+    
+    # Анализ выбросов
+    find_outliers_iqr(df, 'зарплата')
     
     plot_salary_distribution(df, save_path=salary_dist_path)
     plot_experience_vs_salary(df, save_path=exp_vs_salary_path)
