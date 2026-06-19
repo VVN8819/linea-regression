@@ -1,4 +1,14 @@
-"""
-LinearRegression
-"""
-__version__ = "1.0.0"
+# scripts/__init__.py
+"""Модули для анализа данных о зарплатах разработчиков."""
+
+from .data_loader import read_csv_data
+from .eda import run_eda
+from .visualization import run_visualizations
+from .feature_engineering import run_feature_engineering
+
+__all__ = [
+    'read_csv_data', 
+    'run_eda', 
+    'run_visualizations',
+    'run_feature_engineering'
+]
