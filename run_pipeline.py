@@ -5,7 +5,7 @@ from scripts.eda import run_eda
 from scripts.visualization import run_visualizations
 from scripts.feature_engineering import run_feature_engineering
 from scripts.correlations import run_correlations
-from scripts.modeling import prepare_and_split, train_baseline_model, analyze_coefficients
+from scripts.modeling import prepare_and_split, train_baseline_model, analyze_coefficients, check_multicollinearity
 
 def main():
     # сырые данные
@@ -33,6 +33,9 @@ def main():
     
     # Анализ коэффициентов
     coef_df = analyze_coefficients(model, X_train, save_path='scripts/reports/coefficients_plot.png')
+    
+    # Проверка мультиколлинеарности - Вычисление VIF
+    vif_df = check_multicollinearity(X_train)
     
 if __name__ == "__main__":
     main()

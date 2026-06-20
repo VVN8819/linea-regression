@@ -6,6 +6,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import matplotlib.pyplot as plt
 from pathlib import Path
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 # ========== Разделите данные на признаки (X) и целевую переменную (y) =============
 def prepare_and_split(df_encoded: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> tuple:
@@ -172,3 +173,59 @@ def analyze_coefficients(model: LinearRegression, X_train: pd.DataFrame,
     coef_df = coef_df.drop(columns=['Абсолютное значение'])
     
     return coef_df
+
+# ============ Проверка мультиколлинеарности через VIF ===============
+def check_multicollinearity(X_train: pd.DataFrame) -> pd.DataFrame:
+    """Проверка мультиколлинеарности через VIF
+
+    Args:
+        X_train (pd.DataFrame): DataFrame с признаками (обучающая выборка)
+
+    Returns:
+        pd.DataFrame: DataFrame с VIF для каждого признака
+    """
+    
+    # Приводим данные к числовому типу float64
+    X_numeric = X_train.astype(float)
+    
+    # Добавляем константу (столбец единиц) — это требование statsmodels
+    # для корректного расчёта VIF
+    from statsmodels.tools.tools import add_constant
+    X_with_const = add_constant(X_numeric)
+    
+    # Вычисляем VIF
+    vif_data = pd.DataFrame()
+    vif_data["Признак"] = X_train.columns
+    vif_data["VIF"] = [variance_inflation_factor(X_with_const.values, i + 1)
+                        for i in range(len(X_train.columns))]
+    
+    # ЗАДАНИЕ: Отсортируйте по VIF и выведите признаки с VIF > 10
+    vif_data = vif_data.sort_values('VIF', ascending=False).reset_index(drop=True)
+    
+    # Выводим все признаки с VIF
+    print('\n VIF для всех признаков:')
+    for _, row in vif_data.iterrows():
+        status = '+' if row['VIF'] < 5 else ('!' if row['VIF'] < 10 else 'X')
+        print(f"  {status} {row['Признак']:<35} VIF = {row['VIF']:.2f}")
+        
+    # Выводим признаки с VIF > 10 (критическая мультиколлинеарность)
+    critical_vif = vif_data[vif_data['VIF'] > 10]
+    print(f'\n Признаки с критической мультиколлинеарностью (VIF > 10):')
+    if len(critical_vif) > 0:
+        for _, row in critical_vif.iterrows():
+            print(f"   {row['Признак']}: VIF = {row['VIF']:.2f}")
+    else:
+        print(' Критической мультиколлинеарности не обнаружено!')
+        
+    # Выводим признаки с VIF > 5 (высокая мультиколлинеарность)
+    high_vif = vif_data[(vif_data['VIF'] > 5) & (vif_data['VIF'] <= 10)]
+    print(f'\n Признаки с высокой мультиколлинеарностью (5 < VIF ≤ 10):')
+    if len(high_vif) > 0:
+        for _, row in high_vif.iterrows():
+            print(f"  {row['Признак']}: VIF = {row['VIF']:.2f}")
+    else:
+        print('  Признаков с высокой мультиколлинеарностью не обнаружено!')
+        
+    return vif_data
+
+
