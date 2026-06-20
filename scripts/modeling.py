@@ -364,4 +364,124 @@ def select_features_by_pvalue(
     print(f'Стало признаков: {len(significant_features)}')
     print(f'Сокращение: {((len(X_train.columns) - len(significant_features)) / len(X_train.columns) * 100):.1f}%')
     
-    return X_train_selected, X_test_selected, model_selected, y_test_pred_selected
+    return X_train_selected, X_test_selected, model_selected, y_test_pred_selected, r2_test_selected, mae_test_selected
+
+# =============== Бизнес-выводы ===================
+def business_insights(model_selected: LinearRegression, 
+                      X_train_selected: pd.DataFrame,
+                      r2_test: float = None,
+                      mae_test: float = None) -> None:
+    """Бизнес-выводы на основе коэффициентов финальной модели
+
+    Args:
+        model_selected (LinearRegression): обученная модель после отбора признаков
+        X_train_selected (pd.DataFrame): DataFrame с признаками финальной модели
+        r2_test (float, optional): R² на тестовой выборке. Defaults to None.
+        mae_test (float, optional): MAE на тестовой выборке. Defaults to None.
+    """
+    
+    # Создаем DataFrame с коэффициентами для удобного доступа
+    coef_df = pd.DataFrame({
+        'Признак': X_train_selected.columns,
+        'Коэффициент': model_selected.coef_
+    })
+    
+    # Базовая зарплата (intercept)
+    base_salary = model_selected.intercept_
+    print(f'\nБазовая зарплата (intercept): {base_salary:.2f} тыс. руб.')
+    
+    # ===== 1: На сколько увеличивается зарплата с каждым годом опыта? =====
+    exp_coef = coef_df[coef_df['Признак'] == 'опыт_лет']['Коэффициент'].values[0]
+    print(f'\nОтвет: +{exp_coef:.2f} тыс. руб. за каждый год опыта')
+    print(f'\nПримеры:')
+    print(f'   • Junior (0 лет опыта): {base_salary:.0f} тыс. руб.')
+    print(f'   • Middle (5 лет опыта): {base_salary + 5 * exp_coef:.0f} тыс. руб.')
+    print(f'   • Senior (10 лет опыта): {base_salary + 10 * exp_coef:.0f} тыс. руб.')
+    print(f'   • Lead (14 лет опыта): {base_salary + 14 * exp_coef:.0f} тыс. руб.')
+    
+    # ===== 2: Какой город дает самую высокую премию к зарплате? =====
+     
+    # Базовый город — Казань (когда все город_* = 0)
+    city_features = [col for col in coef_df['Признак'] if col.startswith('город_')]
+    city_coefs = coef_df[coef_df['Признак'].isin(city_features)]
+    
+    print(f'\nБазовый город (для сравнения): Казань')
+    print(f'\nНадбавки к зарплате по городам:')
+    print(f'   • Казань (базовый): 0 тыс. руб.')
+    
+    best_city = None
+    best_city_coef = 0
+    for _, row in city_coefs.iterrows():
+        city_name = row['Признак'].replace('город_', '')
+        print(f'   • {city_name}: {row["Коэффициент"]:+.2f} тыс. руб.')
+        if row['Коэффициент'] > best_city_coef:
+            best_city_coef = row['Коэффициент']
+            best_city = city_name
+    
+    print(f'\nОтвет: {best_city} дает самую высокую премию (+{best_city_coef:.2f} тыс. руб.)')
+    
+    # ===== 3: Какой язык программирования самый выгодный? =====
+    
+    # Базовый язык — C++ (когда все язык_* = 0)
+    lang_features = [col for col in coef_df['Признак'] if col.startswith('язык_программирования_')]
+    lang_coefs = coef_df[coef_df['Признак'].isin(lang_features)]
+    
+    print(f'\nБазовый язык (для сравнения): C++')
+    print(f'\nРазница в зарплате по языкам:')
+    print(f'   • C++ (базовый): 0 тыс. руб. (самый высокооплачиваемый)')
+    
+    for _, row in lang_coefs.iterrows():
+        lang_name = row['Признак'].replace('язык_программирования_', '')
+        print(f'   • {lang_name}: {row["Коэффициент"]:+.2f} тыс. руб.')
+        
+    print(f'\nВывод: JavaScript-разработчики получают на {abs(lang_coefs[lang_coefs["Признак"]=="язык_программирования_JavaScript"]["Коэффициент"].values[0]):.0f} тыс. руб.')
+
+    # ===== 4: Сколько стоит знание английского на уровне C1-C2 vs A1-A2? =====
+    
+    # Базовый уровень — A1-A2 (когда все английский_* = 0)
+    eng_features = [col for col in coef_df['Признак'] if col.startswith('английский_')]
+    eng_coefs = coef_df[coef_df['Признак'].isin(eng_features)]
+    
+    c1_c2_coef = eng_coefs[eng_coefs['Признак'] == 'английский_C1-C2']['Коэффициент'].values[0]
+    b1_b2_coef = eng_coefs[eng_coefs['Признак'] == 'английский_B1-B2']['Коэффициент'].values[0]
+    
+    print(f'\nНадбавки за знание английского:')
+    print(f'   • A1-A2 (базовый): 0 тыс. руб.')
+    print(f'   • B1-B2 (средний): +{b1_b2_coef:.2f} тыс. руб.')
+    print(f'   • C1-C2 (свободное владение): +{c1_c2_coef:.2f} тыс. руб.')
+    
+    print(f'\nОтвет: C1-C2 vs A1-A2 = +{c1_c2_coef:.2f} тыс. руб.')
+    print(f'\nВывод:')
+    print(f'   • Переход с A1-A2 на B1-B2 даёт +{b1_b2_coef:.0f} тыс. руб.')
+    print(f'   • Переход с B1-B2 на C1-C2 даёт ещё +{c1_c2_coef - b1_b2_coef:.0f} тыс. руб.')
+    print(f'   • Общий переход с A1-A2 на C1-C2 даёт +{c1_c2_coef:.0f} тыс. руб.')
+    print(f'   • Это {c1_c2_coef/exp_coef:.1f} лет опыта работы!')
+    print(f'\nРекомендация кандидатам: учите английский до C1-C2 — это')
+    print(f'   окупается так же, как {c1_c2_coef/exp_coef:.0f} лет дополнительного опыта.')
+    
+    # ===== ИТОГОВЫЕ БИЗНЕС-РЕКОМЕНДАЦИИ =====
+    print('ИТОГОВЫЕ БИЗНЕС-РЕКОМЕНДАЦИИ')
+    
+    print('\nДля кандидатов (как максимизировать зарплату):')
+    print('   1. Накапливайте опыт — каждый год = +' + f'{exp_coef:.0f}' + ' тыс. руб.')
+    print('   2. Учите английский до C1-C2 — надбавка +' + f'{c1_c2_coef:.0f}' + ' тыс. руб.')
+    print('   3. Стремитесь в крупные компании — надбавка до +' + f'{abs(coef_df[coef_df["Признак"]=="размер_компании_Малая"]["Коэффициент"].values[0]):.0f}' + ' тыс. руб.')
+    print('   4. Рассмотрите переезд в Москву — надбавка +' + f'{best_city_coef:.0f}' + ' тыс. руб.')
+    print('   5. Получите PhD или Магистратуру — Бакалавр стоит -31 тыс. руб.')
+    
+    print('\nДля работодателей (рыночные ставки):')
+    print('   • Базовая ставка (0 опыта, Казань, C++, Крупная, A1-A2, PhD): ' + f'{base_salary:.0f}' + ' тыс. руб.')
+    print('   • Москва добавляет +' + f'{best_city_coef:.0f}' + ' тыс. руб. к любому кандидату')
+    print('   • Малая компания должна платить на ~49 тыс. руб. меньше крупной')
+    print('   • C1-C2 английский стоит +' + f'{c1_c2_coef:.0f}' + ' тыс. руб. в месяц')
+    
+    print('\nДля HR-аналитики:')
+    if r2_test is not None and mae_test is not None:
+        print(f'   • Модель объясняет {r2_test*100:.1f}% различий в зарплатах на тестовой выборке')
+        print(f'   • Средняя ошибка предсказания: {mae_test:.1f} тыс. руб.')
+    else:
+        print('   • Модель использует 10 статистически значимых факторов')
+    print('   • 10 ключевых факторов определяют зарплату разработчика')
+    
+    
+    

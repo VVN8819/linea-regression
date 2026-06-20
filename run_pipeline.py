@@ -11,7 +11,8 @@ from scripts.modeling import (
     analyze_coefficients,
     check_multicollinearity,
     analyze_statistical_significance,
-    select_features_by_pvalue
+    select_features_by_pvalue,
+    business_insights
 )
 
 def main():
@@ -48,8 +49,11 @@ def main():
     model_stats = analyze_statistical_significance(X_train, y_train)
     
     # Отбор признаков на основе p-значений
-    X_train_selected, X_test_selected, model_selected, y_test_pred_selected = \
-        select_features_by_pvalue(X_train, X_test, y_train, y_test, pvalue_threshold=0.05)
+    X_train_selected, X_test_selected, model_selected, y_test_pred_selected, r2_test, mae_test = \
+    select_features_by_pvalue(X_train, X_test, y_train, y_test, pvalue_threshold=0.05)
+        
+    # Интерпретация для бизнеса
+    business_insights(model_selected, X_train_selected, r2_test=r2_test, mae_test=mae_test)
     
 if __name__ == "__main__":
     main()
