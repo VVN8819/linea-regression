@@ -5,7 +5,7 @@ from scripts.eda import run_eda
 from scripts.visualization import run_visualizations
 from scripts.feature_engineering import run_feature_engineering
 from scripts.correlations import run_correlations
-from scripts.modeling import prepare_and_split
+from scripts.modeling import prepare_and_split, train_baseline_model
 
 def main():
     # сырые данные
@@ -27,6 +27,9 @@ def main():
     
     # Разделение на train/test
     X_train, X_test, y_train, y_test = prepare_and_split(df_encoded)
+    
+    # Обучение базовой модели
+    model, y_test_pred = train_baseline_model(X_train, X_test, y_train, y_test)
     
 if __name__ == "__main__":
     main()
