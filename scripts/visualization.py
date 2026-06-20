@@ -111,7 +111,12 @@ def find_outliers_iqr(df: pd.DataFrame, col: str) -> int:
 
 
 def run_visualizations(df: pd.DataFrame, reports_dir: str = 'scripts/reports') -> None:
-    """Запуск всех визуализаций и анализа выбросов."""
+    """Запуск всех визуализаций и анализа выбросов.
+
+    Args:
+        df (pd.DataFrame): DataFrame с сырыми данными
+        reports_dir (str, optional): папка для сохранения отчётов. Defaults to 'scripts/reports'.
+    """
     # Формируем пути для сохранения
     salary_dist_path = f'{reports_dir}/salary_distribution.png'
     exp_vs_salary_path = f'{reports_dir}/experience_vs_salary.png'
