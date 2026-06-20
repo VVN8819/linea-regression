@@ -29,6 +29,11 @@ def descrip_stat(df: pd.DataFrame) -> None:
     print(f'Описательная статистика для числовых колонок:\n {df[num_cols].describe().T.round(2)}')
 
 def run_eda(df: pd.DataFrame) -> None:
+    """Запуск полного цикла EDA.
+
+    Args:
+        df (pd.DataFrame): сырые данные
+    """
     basic_info(df)
     missing_values_rep(df)
     descrip_stat(df)

@@ -8,7 +8,7 @@ from pathlib import Path
 plt.rcParams['font.family'] = 'DejaVu Sans'
 
 def plot_salary_distribution(df: pd.DataFrame, save_path: str = None) -> None:
-    
+    """Построение гистограммы и boxplot распределения зарплат."""
     plt.figure(figsize=(12, 5))
     
     # ЗАДАНИЕ: Постройте гистограмму распределения зарплат
@@ -44,7 +44,7 @@ def plot_salary_distribution(df: pd.DataFrame, save_path: str = None) -> None:
     plt.show()
 
 def plot_experience_vs_salary(df: pd.DataFrame, save_path: str = None) -> None:
-    
+    """Scatter plot: опыт работы vs зарплата."""
     # ЗАДАНИЕ: Постройте scatter plot: опыт работы vs зарплата
     plt.figure(figsize=(10, 6))
     plt.scatter(df['опыт_лет'], df['зарплата'], 
@@ -64,6 +64,16 @@ def plot_experience_vs_salary(df: pd.DataFrame, save_path: str = None) -> None:
     plt.show()
 
 def find_outliers_iqr(df: pd.DataFrame, col: str) -> int:
+    """Поиск выбросов методом межквартильного размаха (IQR).
+    Использует коэффициент 3*IQR для определения границ.
+
+    Args:
+        df (pd.DataFrame): DataFrame с данными
+        col (str): название колонки для анализа
+
+    Returns:
+        int: Количество найденных выбросов
+    """
     
     print(f'\nАнализ выбросов в колонке: {col}')
     
@@ -101,7 +111,7 @@ def find_outliers_iqr(df: pd.DataFrame, col: str) -> int:
 
 
 def run_visualizations(df: pd.DataFrame, reports_dir: str = 'scripts/reports') -> None:
-    
+    """Запуск всех визуализаций и анализа выбросов."""
     # Формируем пути для сохранения
     salary_dist_path = f'{reports_dir}/salary_distribution.png'
     exp_vs_salary_path = f'{reports_dir}/experience_vs_salary.png'

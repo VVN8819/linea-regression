@@ -4,7 +4,14 @@ import numpy as np
 
 # One-Hot Encoding для категориальных признаков
 def encode_categorical_features(df: pd.DataFrame) -> pd.DataFrame:
-    
+    """Применение One-Hot Encoding к категориальным признакам.
+
+    Args:
+        df (pd.DataFrame): Исходный DataFrame с данными
+
+    Returns:
+        pd.DataFrame: DataFrame с закодированными категориальными признаками
+    """
     # Создаем копию датасета для обработки
     df_encoded = df.copy()
     
@@ -36,6 +43,15 @@ def encode_categorical_features(df: pd.DataFrame) -> pd.DataFrame:
 
 # Разделение данных на признаки (X) и целевую переменную (y).
 def prepare_features_and_target(df: pd.DataFrame) -> tuple:
+    """Разделение данных на признаки (X) и целевую переменную (y).
+
+    Args:
+        df (pd.DataFrame): DataFrame с закодированными признаками
+
+    Returns:
+        tuple: X: DataFrame с признаками
+                y: Series с целевой переменной (зарплата)
+    """
     # Отделяем целевую переменную
     y = df['зарплата']
     
@@ -51,7 +67,15 @@ def prepare_features_and_target(df: pd.DataFrame) -> tuple:
 
 # Пайплайн предобработки признаков
 def run_feature_engineering(df: pd.DataFrame) -> tuple:
-    
+    """Полный пайплайн предобработки признаков.
+
+    Args:
+        df (pd.DataFrame): Исходный DataFrame
+
+    Returns:
+        tuple: X: DataFrame с признаками
+                y: Series с целевой переменной
+    """
     # 1. Кодирование категориальных признаков
     df_encoded = encode_categorical_features(df)
     
