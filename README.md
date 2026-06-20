@@ -2,7 +2,8 @@
 
 # Структура:
 
-LINEA-REGRESSION/
+linea-regression/
+
     scripts/
         data/
             raw_data.csv
@@ -11,14 +12,16 @@ LINEA-REGRESSION/
         data_loader.py
         eda.py
         visualization.py
+    
     reports/
         salary_distribution.png
         experience_vs_salary.png
-    .gitignore
-    LICENSE
-    README.md
-    requirements.txt
-    run_pipeline.py
+    
+    .gitignore - Игнорировать секреты
+    LICENSE - Лицензия использования
+    README.md - Инструкция для команды
+    requirements.txt - Библиотеки Python
+    run_pipeline.py - вызывает data_loader.py, eda.py, visualization.py, correlations.py
 
 # Задание 1.1: Загрузите данные
 1. Сколько наблюдений (разработчиков) в датасете?
