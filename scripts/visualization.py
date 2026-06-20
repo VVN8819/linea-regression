@@ -53,6 +53,7 @@ def plot_experience_vs_salary(df: pd.DataFrame, save_path: str = None) -> None:
     plt.xlabel('Опыт работы (лет)')
     plt.ylabel('Зарплата (тыс. руб.)')
     plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
     
     # Сохраняем график
     if save_path:
