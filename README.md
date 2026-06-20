@@ -11,9 +11,13 @@ linea-regression/
         correlations.py
         data_loader.py
         eda.py
+        feature_engineering.py
+        modeling.py
         visualization.py
     
     reports/
+        coefficients_plot.png
+        correlation_heatmao.png
         salary_distribution.png
         experience_vs_salary.png
     
@@ -110,3 +114,8 @@ linea-regression/
 
 3. Чему равен Adjusted R²?
 - Скорректированный R² (0.799) учитывает количество признаков и высокий
+
+# Задание 5.2: Отбор признаков (feature selection) на основе p-значений
+1. Улучшилось ли качество на тестовой выборке после отбора признаков?
+- Модель практически не изменилась (разница R² = 0.0058)
+- Изменение MAE на тесте: -1.72 тыс. руб.
