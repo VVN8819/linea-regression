@@ -5,6 +5,7 @@ from scripts.eda import run_eda
 from scripts.visualization import run_visualizations
 from scripts.feature_engineering import run_feature_engineering
 from scripts.correlations import run_correlations
+from scripts.modeling import prepare_and_split
 
 def main():
     # сырые данные
@@ -23,6 +24,9 @@ def main():
     df_encoded = X.copy()
     df_encoded['зарплата'] = y
     correlations = run_correlations(df_encoded)
+    
+    # Разделение на train/test
+    X_train, X_test, y_train, y_test = prepare_and_split(df_encoded)
     
 if __name__ == "__main__":
     main()
