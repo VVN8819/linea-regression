@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import matplotlib.pyplot as plt
 from pathlib import Path
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+import statsmodels.api as sm
 
 # ========== Разделите данные на признаки (X) и целевую переменную (y) =============
 def prepare_and_split(df_encoded: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> tuple:
@@ -227,5 +228,32 @@ def check_multicollinearity(X_train: pd.DataFrame) -> pd.DataFrame:
         print('  Признаков с высокой мультиколлинеарностью не обнаружено!')
         
     return vif_data
+
+# ============== Анализ значимости коэффициентов ============
+def analyze_statistical_significance(X_train: pd.DataFrame, y_train: pd.Series) -> sm.regression.linear_model.RegressionResults:
+    """Анализ значимости коэффициентов
+
+    Args:
+        X_train (pd.DataFrame): DataFrame с признаками (обучающая выборка)
+        y_train (pd.Series): Series с целевой переменной (обучающая выборка)
+
+    Returns:
+        sm.regression.linear_model.RegressionResults: Обученная модель statsmodels OLS
+    """
+    
+    # Приводим данные к числовому типу float64
+    X_train_float = X_train.astype(float).reset_index(drop=True)
+    y_train_float = y_train.astype(float).reset_index(drop=True)
+    
+    # ЗАДАНИЕ: Добавьте константу к признакам
+    X_train_sm = sm.add_constant(X_train_float)
+    
+    # ЗАДАНИЕ: Обучите модель OLS из statsmodels
+    model_stats = sm.OLS(y_train_float, X_train_sm).fit()
+    
+    # ЗАДАНИЕ: Выведите summary модели
+    print('\n' + model_stats.summary().as_text())
+    
+    return model_stats
 
 
