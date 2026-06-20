@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+import matplotlib.pyplot as plt
+from pathlib import Path
 
 # ========== Разделите данные на признаки (X) и целевую переменную (y) =============
 def prepare_and_split(df_encoded: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> tuple:
@@ -92,3 +94,45 @@ def train_baseline_model(
     print(f"В среднем модель ошибается при предсказании на {mae_test:.1f} тыс. руб.")
     
     return model, y_test_pred
+
+# =========== Анализ коэффициентов =================
+def analyze_coefficients(model: LinearRegression, X_train: pd.DataFrame, 
+                         save_path: str = None) -> pd.DataFrame:
+    """Анализ коэффициентов модели
+
+    Args:
+        model (LinearRegression): обученная модель линейной регрессии
+        X_train (pd.DataFrame): DataFrame с признаками (для получения названий колонок)
+        save_path (str, optional): путь для сохранения графика. Defaults to None.
+
+    Returns:
+        pd.DataFrame: DataFrame с коэффициентами, отсортированный по абсолютному значению
+    """
+    
+    # ЗАДАНИЕ: Создайте DataFrame с коэффициентами модели
+    coef_df = pd.DataFrame({
+        'Признак': X_train.columns,
+        'Коэффициент': model.coef_
+    })
+    
+    # Добавляем базовую зарплату (intercept) отдельной строкой
+    intercept_df = pd.DataFrame({
+        'Признак': ['intercept (базовая зарплата)'],
+        'Коэффициент': [model.intercept_]
+    })
+    
+    # ЗАДАНИЕ: Отсортируйте коэффициенты по абсолютному значению
+    coef_df['Абсолютное значение'] = coef_df['Коэффициент'].abs()
+    coef_df = coef_df.sort_values('Абсолютное значение', ascending=False)
+    
+    # ЗАДАНИЕ: Выведите топ-10 самых важных признаков
+    print(f'\nТоп-10 самых важных признаков (по влиянию на зарплату):')
+    top_10 = coef_df.head(10)
+    for idx, row in top_10.iterrows():
+        sign = '+' if row['Коэффициент'] > 0 else ''
+        print(f" {row['Признак']:<35} {sign}{row['Коэффициент']:>7.2f}")
+        
+    # Удаляем вспомогательную колонку перед возвратом
+    coef_df = coef_df.drop(columns=['Абсолютное значение'])
+    
+    return coef_df

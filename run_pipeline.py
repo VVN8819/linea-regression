@@ -5,7 +5,7 @@ from scripts.eda import run_eda
 from scripts.visualization import run_visualizations
 from scripts.feature_engineering import run_feature_engineering
 from scripts.correlations import run_correlations
-from scripts.modeling import prepare_and_split, train_baseline_model
+from scripts.modeling import prepare_and_split, train_baseline_model, analyze_coefficients
 
 def main():
     # сырые данные
@@ -30,6 +30,9 @@ def main():
     
     # Обучение базовой модели
     model, y_test_pred = train_baseline_model(X_train, X_test, y_train, y_test)
+    
+    # Анализ коэффициентов
+    coef_df = analyze_coefficients(model, X_train, save_path='scripts/reports/coefficients_plot.png')
     
 if __name__ == "__main__":
     main()
