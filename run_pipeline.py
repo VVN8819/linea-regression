@@ -5,7 +5,14 @@ from scripts.eda import run_eda
 from scripts.visualization import run_visualizations
 from scripts.feature_engineering import run_feature_engineering
 from scripts.correlations import run_correlations
-from scripts.modeling import prepare_and_split, train_baseline_model, analyze_coefficients, check_multicollinearity, analyze_statistical_significance
+from scripts.modeling import (
+    prepare_and_split,
+    train_baseline_model,
+    analyze_coefficients,
+    check_multicollinearity,
+    analyze_statistical_significance,
+    select_features_by_pvalue
+)
 
 def main():
     # сырые данные
@@ -39,6 +46,10 @@ def main():
     
     # Анализ значимости коэффициентов
     model_stats = analyze_statistical_significance(X_train, y_train)
+    
+    # Отбор признаков на основе p-значений
+    X_train_selected, X_test_selected, model_selected, y_test_pred_selected = \
+        select_features_by_pvalue(X_train, X_test, y_train, y_test, pvalue_threshold=0.05)
     
 if __name__ == "__main__":
     main()

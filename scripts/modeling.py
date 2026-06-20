@@ -256,4 +256,62 @@ def analyze_statistical_significance(X_train: pd.DataFrame, y_train: pd.Series) 
     
     return model_stats
 
+# ========== Отбор признаков (feature selection) на основе p-значений ============
+def select_features_by_pvalue(
+    X_train: pd.DataFrame, 
+    X_test: pd.DataFrame,
+    y_train: pd.Series, 
+    y_test: pd.Series,
+    pvalue_threshold: float = 0.05
+) -> tuple:
+    """Отбор признаков (feature selection) на основе p-значений
 
+    Args:
+        X_train (pd.DataFrame): DataFrame с признаками (обучающая выборка)
+        X_test (pd.DataFrame): DataFrame с признаками (тестовая выборка)
+        y_train (pd.Series): Series с целевой переменной (обучающая выборка)
+        y_test (pd.Series): Series с целевой переменной (тестовая выборка)
+        pvalue_threshold (float, optional): порог p-value для отбора. Defaults to 0.05.
+
+    Returns:
+        tuple: (X_train_selected, X_test_selected, model_selected, y_test_pred_selected)
+    """
+    
+    # Приводим данные к float64 и сбрасываем индексы
+    X_train_clean = X_train.astype(float).reset_index(drop=True)
+    y_train_clean = y_train.astype(float).reset_index(drop=True)
+    X_test_clean = X_test.astype(float).reset_index(drop=True)
+    y_test_clean = y_test.astype(float).reset_index(drop=True)
+    
+    # Обучаем OLS модель для получения p-values
+    X_train_sm = sm.add_constant(X_train_clean)
+    model_stats = sm.OLS(y_train_clean, X_train_sm).fit()
+    
+    # ЗАДАНИЕ: Создайте список значимых признаков (p-value < 0.05)
+    # Исключаем константу 'const' из списка
+    p_values = model_stats.pvalues.drop('const')
+    significant_features = p_values[p_values < pvalue_threshold].index.tolist()
+    
+    print(f'\nИсходное количество признаков: {len(X_train.columns)}')
+    print(f'Порог p-value: {pvalue_threshold}')
+    print(f'Количество значимых признаков: {len(significant_features)}')
+    print(f'Количество удалённых признаков: {len(X_train.columns) - len(significant_features)}')
+    
+    print(f'\nЗначимые признаки (p < {pvalue_threshold}):')
+    for feature in significant_features:
+        p_val = p_values[feature]
+        coef = model_stats.params[feature]
+        print(f' - {feature:<35} p-value = {p_val:.4f}, коэф. = {coef:+.2f}')
+        
+    # ЗАДАНИЕ: Обучите модель только на значимых признаках
+    X_train_selected = X_train_clean[significant_features]
+    X_test_selected = X_test_clean[significant_features]
+    
+    model_selected = LinearRegression()
+    model_selected.fit(X_train_selected, y_train_clean)
+    
+    # Предсказания
+    y_train_pred_selected = model_selected.predict(X_train_selected)
+    y_test_pred_selected = model_selected.predict(X_test_selected)
+    
+    return X_train_selected, X_test_selected, model_selected, y_test_pred_selected
