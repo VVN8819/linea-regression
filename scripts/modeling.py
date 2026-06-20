@@ -314,4 +314,54 @@ def select_features_by_pvalue(
     y_train_pred_selected = model_selected.predict(X_train_selected)
     y_test_pred_selected = model_selected.predict(X_test_selected)
     
+    # ЗАДАНИЕ: Сравните метрики с базовой моделью
+    # Вычисляем метрики для новой модели
+    r2_train_selected = r2_score(y_train_clean, y_train_pred_selected)
+    r2_test_selected = r2_score(y_test_clean, y_test_pred_selected)
+    rmse_train_selected = np.sqrt(mean_squared_error(y_train_clean, y_train_pred_selected))
+    rmse_test_selected = np.sqrt(mean_squared_error(y_test_clean, y_test_pred_selected))
+    mae_train_selected = mean_absolute_error(y_train_clean, y_train_pred_selected)
+    mae_test_selected = mean_absolute_error(y_test_clean, y_test_pred_selected)
+    
+    # Получаем метрики базовой модели для сравнения
+    model_baseline = LinearRegression()
+    model_baseline.fit(X_train_clean, y_train_clean)
+    y_train_pred_baseline = model_baseline.predict(X_train_clean)
+    y_test_pred_baseline = model_baseline.predict(X_test_clean)
+    
+    r2_train_baseline = r2_score(y_train_clean, y_train_pred_baseline)
+    r2_test_baseline = r2_score(y_test_clean, y_test_pred_baseline)
+    rmse_train_baseline = np.sqrt(mean_squared_error(y_train_clean, y_train_pred_baseline))
+    rmse_test_baseline = np.sqrt(mean_squared_error(y_test_clean, y_test_pred_baseline))
+    mae_train_baseline = mean_absolute_error(y_train_clean, y_train_pred_baseline)
+    mae_test_baseline = mean_absolute_error(y_test_clean, y_test_pred_baseline)
+    
+    # Сравниваем метрики
+    print('\nБазовая модель vs С отбором признаков\n')
+    print(f'{"Метрика":<25} {"Базовая":<15} {"С отбором":<15} {"Разница":<15}\n')
+    print(f'{"R² (train)":<25} {r2_train_baseline:<15.4f} {r2_train_selected:<15.4f} {r2_train_selected - r2_train_baseline:>+15.4f}')
+    print(f'{"R² (test)":<25} {r2_test_baseline:<15.4f} {r2_test_selected:<15.4f} {r2_test_selected - r2_test_baseline:>+15.4f}')
+    print(f'{"RMSE (train), тыс. руб.":<25} {rmse_train_baseline:<15.2f} {rmse_train_selected:<15.2f} {rmse_train_selected - rmse_train_baseline:>+15.2f}')
+    print(f'{"RMSE (test), тыс. руб.":<25} {rmse_test_baseline:<15.2f} {rmse_test_selected:<15.2f} {rmse_test_selected - rmse_test_baseline:>+15.2f}')
+    print(f'{"MAE (train), тыс. руб.":<25} {mae_train_baseline:<15.2f} {mae_train_selected:<15.2f} {mae_train_selected - mae_train_baseline:>+15.2f}')
+    print(f'{"MAE (test), тыс. руб.":<25} {mae_test_baseline:<15.2f} {mae_test_selected:<15.2f} {mae_test_selected - mae_test_baseline:>+15.2f}')
+    
+    # Интерпретация
+    print('\nИнтерпретация:')
+    r2_diff = r2_test_selected - r2_test_baseline
+    if r2_diff > 0.01:
+        print(f'Модель улучшилась! R² на тесте вырос на {r2_diff:.4f}')
+    elif r2_diff < -0.01:
+        print(f'Модель ухудшилась. R² на тесте упал на {abs(r2_diff):.4f}')
+    else:
+        print(f'Модель практически не изменилась (разница R² = {r2_diff:.4f})')
+    
+    mae_diff = mae_test_selected - mae_test_baseline
+    print(f'Изменение MAE на тесте: {mae_diff:+.2f} тыс. руб.')
+    
+    print(f'\nУпрощение модели:')
+    print(f'Было признаков: {len(X_train.columns)}')
+    print(f'Стало признаков: {len(significant_features)}')
+    print(f'Сокращение: {((len(X_train.columns) - len(significant_features)) / len(X_train.columns) * 100):.1f}%')
+    
     return X_train_selected, X_test_selected, model_selected, y_test_pred_selected
