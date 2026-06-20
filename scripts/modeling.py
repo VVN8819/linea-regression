@@ -131,7 +131,34 @@ def analyze_coefficients(model: LinearRegression, X_train: pd.DataFrame,
     for idx, row in top_10.iterrows():
         sign = '+' if row['Коэффициент'] > 0 else ''
         print(f" {row['Признак']:<35} {sign}{row['Коэффициент']:>7.2f}")
-        
+    
+    # ЗАДАНИЕ: Постройте bar plot для топ-10 коэффициентов
+    plt.figure(figsize=(10, 7))
+    
+    # Берем топ-10 и разворачиваем для удобства чтения
+    plot_data = coef_df.head(10).iloc[::-1]
+    
+    # Цвета: зелёный для положительных, красный для отрицательных
+    colors = ['green' if x > 0 else 'red' for x in plot_data['Коэффициент']]
+    
+    plt.barh(plot_data['Признак'], plot_data['Коэффициент'], color=colors, alpha=0.7)
+    plt.xlabel('Коэффициент (влияние на зарплату, тыс. руб.)', fontsize=11)
+    plt.title('Топ-10 признаков по влиянию на зарплату', fontsize=13, pad=15)
+    plt.axvline(x=0, color='black', linewidth=0.8) # Вертикальная линия на 0
+    plt.grid(axis='x', alpha=0.3, linestyle='--')
+    
+    
+    
+    plt.tight_layout()
+    
+    # Сохраняем график
+    if save_path:
+        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
+        print(f'\nГрафик сохранён: {save_path}')
+    
+    plt.show()
+    
     # Удаляем вспомогательную колонку перед возвратом
     coef_df = coef_df.drop(columns=['Абсолютное значение'])
     
