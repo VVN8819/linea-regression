@@ -147,7 +147,16 @@ def analyze_coefficients(model: LinearRegression, X_train: pd.DataFrame,
     plt.axvline(x=0, color='black', linewidth=0.8) # Вертикальная линия на 0
     plt.grid(axis='x', alpha=0.3, linestyle='--')
     
-    
+    # Добавляем значения на столбцы
+    for i, (idx, row) in enumerate(plot_data.iterrows()):
+        plt.text(
+            row['Коэффициент'] + (2 if row['Коэффициент'] > 0 else -2),
+            i,
+            f"{row['Коэффициент']:.1f}",
+            va='center',
+            ha='left' if row['Коэффициент'] > 0 else 'right',
+            fontsize=9
+        )
     
     plt.tight_layout()
     
