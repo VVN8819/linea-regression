@@ -30,10 +30,10 @@ linea-regression/
         visualization.py - визуализаций и анализа выбросов
     
         reports/
-            coefficients_plot.png
-            correlation_heatmao.png
-            salary_distribution.png
-            experience_vs_salary.png
+            coefficients_plot.png - топ-10 коэффициентов
+            correlation_heatmao.png - корреляционная матрица
+            salary_distribution.png - распределение зарплат
+            experience_vs_salary.png - scatter plot опыта vs зарплаты
     
     .gitignore - Игнорировать секреты
     LICENSE - Лицензия использования
