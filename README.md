@@ -38,6 +38,7 @@ linea-regression/
     .gitignore - Игнорировать секреты
     LICENSE - Лицензия использования
     README.md - Инструкция для команды
+    report.md - Итоговый отчет
     requirements.txt - Библиотеки Python
     run_pipeline.py - вызывает data_loader.py, eda.py, visualization.py, correlations.py
 
